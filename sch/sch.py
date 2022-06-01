@@ -135,7 +135,7 @@ def shell(command):
     unique value for that host
 
     The check description is taken from the inline comment or the comment just
-    a line the cron line.
+    above the cron line.
 
     If you want to set additional tags for your check, you should do that with
     an environment variable JOB_TAGS. Separate multiple tags with a comma.
@@ -205,7 +205,7 @@ def shell(command):
         exit_code = os.system(command)
         sys.exit(exit_code)
 
-    # at this point, we're setup to do some smart stuff ;-)
+    # at this point, we're set up to do some smart stuff ;-)
     # we know the exact cron configuration for the job
     # and are able to communicate with healthchecks
 
@@ -630,7 +630,7 @@ INTERVAL_DICT = collections.OrderedDict([
 
 class Job():
     """
-    Wrapper to create a self aware cron job object
+    Wrapper to create a self-aware cron job object
     """
     # pylint does not like the number of attributes and
     # public methods, but i do ;-)
@@ -639,7 +639,7 @@ class Job():
     # pylint: disable=too-few-public-methods
 
     def __init__(self, job):
-        # wrab the job
+        # wrap the job
         self._job = job
         self.id = self._get_id()  # pylint: disable=invalid-name
         self.command = self._job.command
