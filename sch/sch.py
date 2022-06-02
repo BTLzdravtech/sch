@@ -148,6 +148,7 @@ def shell(command):
     job_id = get_job_id(command)
 
     # find system cron job that executes this command
+    job = None
     try:
         job = Cron(job_id).get_job()
     except TypeError:
@@ -157,6 +158,7 @@ def shell(command):
 
     check = None
     interfere = False
+    is_new_check = False
     # pylint:disable=broad-except
     try:
         check = health_checks.find_check(job)
