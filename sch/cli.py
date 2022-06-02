@@ -2,6 +2,7 @@
 SmartCronHelper - A shell wrapper for Healthchecks monitored cron jobs
 """
 
+import configparser
 import sys
 
 import click
@@ -36,7 +37,11 @@ def listchecks(list_local, status_filter):
     """
     List checks for the configured Healthchecks project.
     """
-    healthchecks = sch.get_hc_api()
+    try:
+        healthchecks = sch.get_hc_api()
+    except configparser.Error as e:
+        raise click.ClickException("Parsing config file: {}".format(e))
+
     healthchecks.print_status(list_local, status_filter)
 
 

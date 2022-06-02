@@ -37,13 +37,14 @@ def get_config():
             '/etc',
         )
     ]
+    my_config = configparser.ConfigParser()
     try:
-        my_config = configparser.ConfigParser()
         my_config.read(paths)
     except configparser.Error:
-        logging.error('Could not find/read/parse config file at paths: %s',
-                      ', '.join(paths))
-        my_config = None
+        logging.error(
+            'Could not find/read/parse config file at paths: %s',
+            ', '.join(paths)
+        )
     return my_config
 
 
@@ -62,6 +63,18 @@ except configparser.Error:
     ROOT.setLevel(logging.ERROR)
 
 ROOT.addHandler(HANDLER)
+
+
+def execute_os_command(command):
+    """
+    runs the specified command without sch interference and
+    returns the exit code
+    """
+    logging.debug(
+        "Running a job without SCH interference, command: %s",
+        command
+        )
+    return os.system(command)
 
 
 def execute_shell_command(command):
@@ -112,23 +125,15 @@ def get_hc_api():
     and return an instance of Healthchecks or None if it failed
     """
     config = get_config()
-    try:
-        url = config.get('hc', 'healthchecks_api_url')
-        key = config.get('hc', 'healthchecks_api_key')
+    url = config.get('hc', 'healthchecks_api_url')
+    key = config.get('hc', 'healthchecks_api_key')
 
-        cred = HealthchecksCredentials(
-            api_url=url,
-            api_key=key
-        )
+    cred = HealthchecksCredentials(
+        api_url=url,
+        api_key=key
+    )
 
-        healthchecks = Healthchecks(cred)
-    except configparser.Error:
-        logging.error(
-            'Could not find/read/parse config'
-            )
-        healthchecks = None
-
-    return healthchecks
+    return Healthchecks(cred)
 
 
 def shell(command):
@@ -160,7 +165,11 @@ def shell(command):
     except TypeError:
         logging.error("Could not find matching cron job")
 
-    health_checks = get_hc_api()
+    try:
+        health_checks = get_hc_api()
+    except configparser.Error as e:
+        logging.error("Parsing config file: %s", e)
+        sys.exit(execute_os_command(command))
 
     check = None
     interfere = False
@@ -206,12 +215,7 @@ def shell(command):
         # for some reason, we can't do much with Healthchecks
         # at this point. So, we run the job without too much SCH
         # interference
-        logging.debug(
-            "Running a job without SCH interference, command: %s",
-            command
-            )
-        exit_code = os.system(command)
-        sys.exit(exit_code)
+        sys.exit(execute_os_command(command))
 
     # at this point, we're set up to do some smart stuff ;-)
     # we know the exact cron configuration for the job
