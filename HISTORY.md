@@ -32,3 +32,5 @@
 ### release notes for 0.7.x
 - added `JOB_RNDWAIT` configuration option to introduce a random wait
 - fixed bug that keeps on creating new checks after an unknown failure
+- added `XDG_CONFIG_HOME/sch.conf`, which defaults to `~/.config/sch.conf`,
+  as an additional config file location.

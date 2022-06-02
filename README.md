@@ -32,7 +32,7 @@ Usage: sch [OPTIONS] COMMAND [ARGS]...
 
   sch - A cron shell wrapper for registering and updating cron jobs
   automatically in Healthchecks. The Healthchecks project api_url and
-  api_key should be configured in /etc/sch.conf.
+  api_key should be configured in ~/.config/sch.conf or /etc/sch.conf.
 
 Options:
   --version                 Show the version and exit.
@@ -70,7 +70,8 @@ up      5 days ago      restic_check
 ```
 
 ## Configuration
-Create a configuration file `/etc/sch.conf` that looks like:
+Create a configuration file `~/.config/sch.conf` or `/etc/sch.conf`
+that looks like:
 ``` ini
 [hc]
 healthchecks_api_url = https://hc.example.com/api/v1/

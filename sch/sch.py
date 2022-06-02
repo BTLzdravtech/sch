@@ -29,14 +29,20 @@ def get_config():
     """
     try loading the configuration file
     """
+    paths = [
+        os.path.abspath(os.path.join(d, 'sch.conf'))
+        for d in (
+            '.',
+            os.environ.get('XDG_CONFIG_HOME') or os.path.expanduser('~/.config'),
+            '/etc',
+        )
+    ]
     try:
         my_config = configparser.ConfigParser()
-        my_config.read(['sch.conf', '/etc/sch.conf'])
+        my_config.read(paths)
     except configparser.Error:
-        logging.error(
-            'Could not find/read/parse config'
-            'file sch.conf or /etc/sch.conf'
-            )
+        logging.error('Could not find/read/parse config file at paths: %s',
+                      ', '.join(paths))
         my_config = None
     return my_config
 

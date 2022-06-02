@@ -18,7 +18,7 @@ def main(shell_command=None):
     """
     sch - A cron shell wrapper for registering and updating cron jobs
     automatically in Healthchecks. The Healthchecks project api_url and
-    api_key should be configured in /etc/sch.conf.
+    api_key should be configured in ~/.config/sch.conf or /etc/sch.conf.
     """
     if shell_command:
         sch.shell(shell_command)
