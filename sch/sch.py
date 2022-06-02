@@ -125,8 +125,12 @@ def get_hc_api():
     and return an instance of Healthchecks or None if it failed
     """
     config = get_config()
-    url = config.get('hc', 'healthchecks_api_url')
-    key = config.get('hc', 'healthchecks_api_key')
+
+    try:
+        url = config.get('hc', 'healthchecks_api_url')
+        key = config.get('hc', 'healthchecks_api_key')
+    except configparser.Error as e:
+        raise click.ClickException("Parsing config file: {}".format(e))
 
     cred = HealthchecksCredentials(
         api_url=url,
@@ -156,8 +160,8 @@ def shell(command):
 
     try:
         health_checks = get_hc_api()
-    except configparser.Error as e:
-        logging.error("Parsing config file: %s", e)
+    except click.ClickException as e:
+        logging.error(e)
         sys.exit(execute_os_command(command))
 
     # cron command (including env variable JOB_ID) is the 2nd argument
@@ -315,18 +319,14 @@ class Healthchecks:
             query=query
             )
 
-        try:
-            response = requests.get(url, headers=self.auth_headers)
-            response.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            logging.error("bad response %s", err)
-            return None
+        response = requests.get(url, headers=self.auth_headers)
+        response.raise_for_status()
 
-        if response:
+        if response.text:
             return response.json()['checks']
 
-        logging.error('fetching cron checks failed')
-        raise Exception('fetching cron checks failed')
+        raise ValueError('fetching cron checks failed')
+
 
     def find_check(self, job):
         """
@@ -340,17 +340,21 @@ class Healthchecks:
             tag2=quote_plus(tag_for_host)
             )
 
-        checks = self.get_checks(query)
+        try:
+            checks = self.get_checks(query)
+        except requests.exceptions.HTTPError as err:
+            logging.error("bad response %s", err)
+            raise
+        except ValueError as err:
+            logging.error(str(err))
+            raise
 
         if len(checks) > 1:
             logging.debug("Found %d checks for job (job.id=%s), one expected",
                           len(checks),
                           job.id)
 
-        try:
-            return checks[0]
-        except IndexError:
-            return None
+        return checks[0]
 
     def ping(self, check, ping_type='', data=''):
         """
@@ -554,7 +558,10 @@ class Healthchecks:
             tag_for_host = 'host={hostname}'.format(hostname=socket.getfqdn())
             query = "?&tag={tag}".format(tag=quote_plus(tag_for_host))
 
-        checks = self.get_checks(query)
+        try:
+            checks = self.get_checks(query)
+        except Exception as e:
+            raise click.ClickException(str(e))
 
         for i in sorted(checks, key=lambda x: x['last_ping'], reverse=True):
             if status_filter and i['status'] != status_filter:
