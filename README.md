@@ -10,7 +10,7 @@ A cron shell wrapper for registering and updating cron jobs automatically in
 
 
 ## Installation
-Install sch system wide with pip
+Install sch system-wide with pip
 ``` console
 $ sudo pip3 install sch
 ```
@@ -112,12 +112,12 @@ other job specific environment variables that can be used to configure the behav
 of the cron job or the associated Healthchecks check. These are described in the
 table below:
 
-| Environment variable | Example value | Description | Associated Healthchecks check setting |
-| :--------------------|:--------------| ------------|---------------------------------------|
-| `JOB_ID*`            | `backup`      | Required for `sch` to interact with the Healthchecks API | check name, tags |
-| `JOB_TAGS`           | `foo,bar`     | Specify tag names separated by a comma | tags |
-| `JOB_GRACE`          | `5m`          | Grace time specified in seconds or use the time interval format described below. The grace time will be set to 1.2 times the execution time + `JOB_RNDWAIT` + 30 seconds. As per the Healthchecks API, the minimal grace time is 1 minute and the maximum grace time is 30 days. | grace time |
-| `JOB_RNDWAIT`        | `1m `         | Max. wait time in seconds or use the time interval format described below. Use this setting to introduce a random delay. `sch` will wait a random time between 0 and `JOB_RNDWAIT` before executing the job's command. | grace time |
+| Environment variable | Example value | Description                                                                                                                                                                                                                                                                      | Associated Healthchecks check setting |
+|:---------------------|:--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------|
+| `JOB_ID*`            | `backup`      | Required for `sch` to interact with the Healthchecks API                                                                                                                                                                                                                         | check name, tags                      |
+| `JOB_TAGS`           | `foo,bar`     | Specify tag names separated by a comma                                                                                                                                                                                                                                           | tags                                  |
+| `JOB_GRACE`          | `5m`          | Grace time specified in seconds or use the time interval format described below. The grace time will be set to 1.2 times the execution time + `JOB_RNDWAIT` + 30 seconds. As per the Healthchecks API, the minimal grace time is 1 minute and the maximum grace time is 30 days. | grace time                            |
+| `JOB_RNDWAIT`        | `1m `         | Max. wait time in seconds or use the time interval format described below. Use this setting to introduce a random delay. `sch` will wait a random time between 0 and `JOB_RNDWAIT` before executing the job's command.                                                           | grace time                            |
 
 #### Interval format
 If no suffixes are used, seconds are assumed.
@@ -137,7 +137,7 @@ Although days and weeks are accepted, you might want to limit the interval to se
 
 Examples:
 
-| Interval | Duration     |
+| Interval |     Duration |
 |----------|-------------:|
 | `5m`     |  300 seconds |
 | `120`    |  120 seconds |
@@ -157,7 +157,7 @@ SHELL=/usr/local/bin/sch
 
 Although above cron job is useful, a more advanced configuration could look like:
 ```
-SHELL=/usr/loca/bin/sch
+SHELL=/usr/local/bin/sch
 # super important backup, if this one fails: fix with top priority!
 10 8-20/2 * * mon-fri  backup  JOB_ID=db-backups JOB_TAGS=db,backup,my_project JOB_RNDWAIT=2m JOB_GRACE=5m /usr/local/bin/run-db-backups
 ```
