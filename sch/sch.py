@@ -154,6 +154,12 @@ def shell(command):
     # pylint:disable=too-many-statements
     # pylint:disable=too-many-branches
 
+    try:
+        health_checks = get_hc_api()
+    except configparser.Error as e:
+        logging.error("Parsing config file: %s", e)
+        sys.exit(execute_os_command(command))
+
     # cron command (including env variable JOB_ID) is the 2nd argument
     # command = sys.argv[2]
     job_id = get_job_id(command)
@@ -164,12 +170,6 @@ def shell(command):
         job = Cron(job_id).get_job()
     except TypeError:
         logging.error("Could not find matching cron job")
-
-    try:
-        health_checks = get_hc_api()
-    except configparser.Error as e:
-        logging.error("Parsing config file: %s", e)
-        sys.exit(execute_os_command(command))
 
     check = None
     interfere = False
