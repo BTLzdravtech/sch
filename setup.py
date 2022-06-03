@@ -16,7 +16,7 @@ REQUIREMENTS = [
     'python-crontab',
     'requests',
     'configparser',
-    'tzlocal',
+    'tzlocal>=4.0b2',  # get_localzone_name()
     ]
 
 SETUP_REQUIREMENTS = []

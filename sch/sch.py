@@ -492,7 +492,7 @@ class Healthchecks:
             'grace': 3600,
             'desc': job.comment,
             'channels': '*',  # all available notification channels
-            'tz': tzlocal.get_localzone().zone,
+            'tz': tzlocal.get_localzone_name(),
             'tags': 'sch host={host} job_id={job_id} user={user} '
                     'hash={hash} {job_tags}'.format(
                         host=socket.getfqdn(),
@@ -734,7 +734,7 @@ class Job():
         # job user
         md5.update(os.environ['LOGNAME'].encode('utf-8'))
         # the timezone (not so likely to change)
-        md5.update(tzlocal.get_localzone().zone.encode('utf-8'))
+        md5.update(tzlocal.get_localzone_name().encode('utf-8'))
 
         return md5.hexdigest()
 
