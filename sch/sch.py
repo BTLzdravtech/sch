@@ -186,13 +186,14 @@ def shell(command):
     # pylint:disable=broad-except
     try:
         check = health_checks.find_check(job)
+    except requests.exceptions.HTTPError as err:
+        logging.error("bad response %s", err)
     except Exception as e:
         # do not update or create checks because of communication problems
         logging.error(
             'Ooops! Could not communicate with the healthchecks API: %s',
             e
         )
-        interfere = False
     else:
         if check:
             # existing check found
@@ -348,21 +349,14 @@ class Healthchecks:
             tag2=quote_plus(tag_for_host)
             )
 
-        try:
-            checks = self.get_checks(query)
-        except requests.exceptions.HTTPError as err:
-            logging.error("bad response %s", err)
-            raise
-        except ValueError as err:
-            logging.error(str(err))
-            raise
+        checks = self.get_checks(query)
 
         if len(checks) > 1:
             logging.debug("Found %d checks for job (job.id=%s), one expected",
                           len(checks),
                           job.id)
 
-        return checks[0]
+        return checks[0] if checks else None
 
     def ping(self, check, ping_type='', data=''):
         """
