@@ -158,15 +158,18 @@ def shell(command):
     # pylint:disable=too-many-statements
     # pylint:disable=too-many-branches
 
+    # cron command (including env variable JOB_ID) is the 2nd argument
+    # command = sys.argv[2]
+    job_id = get_job_id(command)
+    if job_id is None:
+        # do not log error for jobs without JOB_ID
+        sys.exit(execute_os_command(command))
+
     try:
         health_checks = get_hc_api()
     except click.ClickException as e:
         logging.error(e)
         sys.exit(execute_os_command(command))
-
-    # cron command (including env variable JOB_ID) is the 2nd argument
-    # command = sys.argv[2]
-    job_id = get_job_id(command)
 
     # find system cron job that executes this command
     job = None
@@ -174,6 +177,8 @@ def shell(command):
         job = Cron(job_id).get_job()
     except TypeError:
         logging.error("Could not find matching cron job")
+    if job is None:
+        sys.exit(execute_os_command(command))
 
     check = None
     interfere = False
@@ -181,9 +186,12 @@ def shell(command):
     # pylint:disable=broad-except
     try:
         check = health_checks.find_check(job)
-    except Exception:
+    except Exception as e:
         # do not update or create checks because of communication problems
-        logging.error('Ooops! Could not communicate with the healthchecks API')
+        logging.error(
+            'Ooops! Could not communicate with the healthchecks API: %s',
+            e
+        )
         interfere = False
     else:
         if check:
