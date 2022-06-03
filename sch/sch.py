@@ -64,6 +64,10 @@ except configparser.Error:
 
 ROOT.addHandler(HANDLER)
 
+# Silence crontab, some comments are parsed as invalid and logged as ERRORs
+# https://gitlab.com/doctormo/python-crontab/-/issues/98
+logging.getLogger('crontab').setLevel(logging.ERROR + 1)
+
 
 def execute_os_command(command):
     """
