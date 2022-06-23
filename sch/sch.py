@@ -272,9 +272,14 @@ def shell(command):
         )
 
     # ping end
+    data = ''
+    if exit_code or stderr or stdout:
+        data = "command: {}\nexit code: {}\nstdout: {}\nstderr: {}".format(
+            command, exit_code, stdout,stderr)
+
     if exit_code == 0:
         # ping success
-        health_checks.ping(check)
+        health_checks.ping(check, data=data)
 
         # set grace time from measurement if the check is
         # - new
@@ -290,16 +295,7 @@ def shell(command):
             job.id,
             )
         # ping failure
-        health_checks.ping(check,
-                           ping_type='/fail',
-                           data="command: {}\n"
-                                "exit code: {}\n"
-                                "stdout: {}\n"
-                                "stderr: {}".format(command,
-                                                    exit_code,
-                                                    stdout,
-                                                    stderr)
-                           )
+        health_checks.ping(check, data=data, ping_type='/fail')
 
 
 HealthchecksCredentials = collections.namedtuple(
