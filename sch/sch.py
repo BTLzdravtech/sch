@@ -141,6 +141,10 @@ def get_hc_api():
         api_key=key
     )
 
+    if config.getboolean('hc', 'force_ipv4', fallback=False):
+        import requests.packages.urllib3.util.connection as conn
+        conn.HAS_IPV6 = False
+
     return Healthchecks(cred)
 
 
