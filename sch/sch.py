@@ -48,7 +48,7 @@ def get_config():
     return my_config
 
 
-HANDLER = logging.handlers.SysLogHandler('/dev/log')
+HANDLER = logging.handlers.SysLogHandler('/dev/log') if os.path.exists('/dev/log') else logging.StreamHandler(sys.stdout)
 FORMATTER = logging.Formatter(
     '{name}/%(module)s.%(funcName)s:'
     '%(levelname)s %(message)s'.format(name=__name__)
